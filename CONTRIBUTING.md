@@ -67,22 +67,6 @@ test executable so `ctest --preset dev` works without environment setup.
 If you run a test executable directly and see `0xc0000135`, that is the
 cause — use CTest, or copy the DLL by hand.
 
-## Code style
-
-Formatting is handled by `clang-format`, configured by the
-`.clang-format` file in the repository root. Run it before committing:
-
-```sh
-clang-format -i BlobAlloc/*.h BlobAlloc/*.c \
-                BlobBox/*.h    BlobBox/*.c \
-                BlobVec/*.h    BlobVec/*.c \
-                tests/*.c      tests/*.h
-```
-
-A `.clangd` file is provided for editor tooling. It expects the compile
-database at `build/dev/compile_commands.json`, so configure the `dev`
-preset once before opening the project in an IDE.
-
 Beyond formatting:
 
 - C11. No compiler extensions outside of `__builtin_*_overflow`.
