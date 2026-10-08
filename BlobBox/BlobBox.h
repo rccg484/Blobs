@@ -621,6 +621,7 @@ bb_binarysearch(const BlobBox* box, const void* data, size_t len, BlobBoxCmpFn c
 #include <stdalign.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 struct BB_entry_s {
     const BlobAlloc* ab;
