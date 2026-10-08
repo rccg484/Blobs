@@ -313,8 +313,12 @@ defensive NULL guards and unreachable overflow checks.
 
 Tested on:
 
-- Debian (gcc, clang)
 - Windows 11 / MSYS2 ucrt64 (clang)
+
+Linux and macOS have not been tested. The library is standard C11 with
+no platform-specific code; the only Windows-specific handling is in the
+test infrastructure, which copies the sanitizer runtime DLL next to
+each test executable.
 
 ---
 
