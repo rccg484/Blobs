@@ -170,7 +170,7 @@ include(FetchContent)
 
 FetchContent_Declare(
     blobs
-    GIT_REPOSITORY https://github.com/yourname/blobs.git
+    GIT_REPOSITORY https://github.com/rccg484/blobs.git
     GIT_TAG        v0.1.0
 )
 FetchContent_MakeAvailable(blobs)
