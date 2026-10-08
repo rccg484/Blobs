@@ -1,0 +1,99 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "dev",
+            "displayName": "Development (ASan + UBSan)",
+            "description": "Debug symbols, moderate optimisation, address and undefined-behaviour sanitizers. Use this for day-to-day work and for running tests.",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_FLAGS_DEBUG": "-g -O1 -fno-omit-frame-pointer -fsanitize=address,undefined -fno-sanitize-recover=all",
+                "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address,undefined"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release",
+            "description": "Fully optimised, no debug info, no sanitizers. Use for benchmarking and for shipping.",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "coverage",
+            "displayName": "Coverage",
+            "description": "Clang source-based coverage instrumentation. Run tests, then merge profiles with llvm-profdata and report with llvm-cov.",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_FLAGS_DEBUG": "-g -O0 -fprofile-instr-generate -fcoverage-mapping",
+                "CMAKE_EXE_LINKER_FLAGS": "-fprofile-instr-generate"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "dev",
+            "configurePreset": "dev"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release"
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "dev",
+            "configurePreset": "dev",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "stopOnFailure": false
+            }
+        },
+        {
+            "name": "release",
+            "configurePreset": "release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "stopOnFailure": false
+            }
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage",
+            "environment": {
+                "LLVM_PROFILE_FILE": "${sourceDir}/build/coverage/profraw/%p.profraw"
+            },
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "stopOnFailure": false
+            }
+        }
+    ]
+}
