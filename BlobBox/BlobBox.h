@@ -41,6 +41,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Development of this file was assisted by LLM-based code generation.
+ * See README for details.
  */
 
 #ifndef BLOBBOX_H
