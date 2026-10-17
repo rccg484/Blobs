@@ -7,6 +7,8 @@ blobs, with pluggable allocators. No build step, no dependencies, no
 globals. Add the headers to your project, define one macro, and use
 them.
 
+Full API documentation: <https://rccg484.github.io/Blobs/>
+
 - **BlobAlloc** — the allocator substrate: hooks, context, and a default
   malloc-backed block.
 - **BlobBox** — a non-owning dynamic array. Entries carry their own

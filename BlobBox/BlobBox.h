@@ -73,6 +73,10 @@ typedef enum BlobBoxRes_s {
  *            that created it.
  * \invariant The entry length is greater than zero.
  * \invariant The entry data buffer holds at least bb_ent_len bytes.
+ *
+ * \note The struct fields are an implementation detail and are not part of
+ *       the public API. Use the accessor functions to inspect an entry or
+ *       a container.
  */
 typedef struct BB_entry_s BlobBoxEnt;
 
@@ -88,6 +92,10 @@ typedef struct BB_entry_s BlobBoxEnt;
  * \invariant For i in [0, bb_getlen(box)), array[i] is not NULL.
  * \invariant The container holds a non-NULL pointer to its BlobAlloc
  *            block.
+
+ * \note The struct fields are an implementation detail and are not part of
+ *       the public API. Use the accessor functions to inspect an entry or
+ *       a container.
  */
 typedef struct BlobBox_s  BlobBox;
 

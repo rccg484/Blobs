@@ -77,6 +77,10 @@ typedef enum BlobVec_res_e {
  * \invariant The owner is either NULL or a valid BlobVec.
  * \invariant If the owner is not NULL, the entry is present in that
  *            vector at exactly one index.
+ *
+ * \note The struct fields are an implementation detail and are not part of
+ *       the public API. Use the accessor functions to inspect an entry or
+ *       a container.
  */
 typedef struct BlobVecEnt_s BlobVecEnt;
 
@@ -89,6 +93,10 @@ typedef struct BlobVecEnt_s BlobVecEnt;
  * \invariant For i in [0, bv_getlen(vec)), array[i] is not NULL and
  *            array[i]->owner == vec.
  * \invariant For i in [bv_getlen(vec), bv_getcap(vec)), array[i] is NULL.
+ *
+ * \note The struct fields are an implementation detail and are not part of
+ *       the public API. Use the accessor functions to inspect an entry or
+ *       a container.
  */
 typedef struct BlobVec_s    BlobVec;
 

@@ -82,6 +82,10 @@ typedef enum BlobList_res_e {
  * \invariant The owner is either NULL or a valid BlobList.
  * \invariant If the owner is not NULL, the entry is reachable from that
  *            list's head by following next pointers.
+ *
+ * \note The struct fields are an implementation detail and are not part of
+ *       the public API. Use the accessor functions to inspect an entry or
+ *       a container.
  */
 typedef struct BlobListEnt_s BlobListEnt;
 
@@ -94,6 +98,10 @@ typedef struct BlobListEnt_s BlobListEnt;
  * \invariant For every entry reachable from head, entry->owner is this
  *            list.
  * \invariant len equals the number of entries reachable from head.
+ *
+ * \note The struct fields are an implementation detail and are not part of
+ *       the public API. Use the accessor functions to inspect an entry or
+ *       a container.
  */
 typedef struct BlobList_s    BlobList;
 
