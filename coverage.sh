@@ -13,6 +13,7 @@ llvm-cov report \
     -object=tests/test_blobbox.exe \
     -object=tests/test_blobvec.exe \
     -object=tests/test_integration.exe \
+    -object=tests/test_bloblist.exe \
     -instr-profile=merged.profdata \
     -ignore-filename-regex='(_deps|test_)'
 
@@ -20,6 +21,7 @@ llvm-cov show \
     -object=tests/test_bloballoc.exe \
     -object=tests/test_blobbox.exe \
     -object=tests/test_blobvec.exe \
+    -object=tests/test_bloblist.exe \
     -object=tests/test_integration.exe \
     -instr-profile=merged.profdata \
     -ignore-filename-regex='(_deps|test_)' \

@@ -1,2 +1,2 @@
-#define BL_IMPL
+#define BLOBLIST_IMPL
 #include "BlobList.h"

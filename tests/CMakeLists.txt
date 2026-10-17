@@ -12,7 +12,7 @@ add_library(unity_lib STATIC ${unity_SOURCE_DIR}/src/unity.c)
 target_include_directories(unity_lib PUBLIC ${unity_SOURCE_DIR}/src)
 
 add_library(test_common STATIC test_common.c)
-target_link_libraries(test_common PUBLIC bloballoc blobbox blobvec unity_lib)
+target_link_libraries(test_common PUBLIC bloballoc blobbox blobvec bloblist unity_lib)
 target_include_directories(test_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(test_bloballoc test_bloballoc.c)
@@ -26,6 +26,10 @@ add_test(NAME blobbox COMMAND test_blobbox)
 add_executable(test_blobvec test_blobvec.c)
 target_link_libraries(test_blobvec PRIVATE test_common blobvec unity_lib)
 add_test(NAME blobvec COMMAND test_blobvec)
+
+add_executable(test_bloblist test_bloblist.c)
+target_link_libraries(test_bloblist PRIVATE test_common bloblist unity_lib)
+add_test(NAME bloblist COMMAND test_bloblist)
 
 add_executable(test_integration test_integration.c)
 target_link_libraries(test_integration PRIVATE test_common blobbox blobvec unity_lib)
@@ -42,7 +46,7 @@ if(WIN32 AND CMAKE_C_COMPILER_ID STREQUAL "Clang")
         "${_clang_bin}/clang_rt.ubsan_standalone-x86_64.dll"
     )
 
-    foreach(_tgt test_bloballoc test_blobbox test_blobvec test_integration)
+    foreach(_tgt test_bloballoc test_blobbox test_blobvec test_bloblist test_integration)
         foreach(_dll ${_sanitizer_dlls})
             if(EXISTS "${_dll}")
                 add_custom_command(TARGET ${_tgt} POST_BUILD

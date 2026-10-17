@@ -811,6 +811,7 @@ bl_append(BlobList* list, BlobListEnt* ent) {
     }
 
     ent->owner = list;
+    list->tail = ent;
     list->len++;
     return BL_OK;
 }
@@ -834,6 +835,7 @@ bl_prepend(BlobList* list, BlobListEnt* ent) {
         list->tail = ent;
     }
 
+    list->head = ent;
     ent->owner = list;
     list->len++;
     return BL_OK;
@@ -928,6 +930,8 @@ bl_insert_before(BlobList* list, BlobListEnt* before, BlobListEnt* ent) {
         list->head = ent;
     }
 
+    before->prev = ent;
+
     ent->owner = list;
     list->len++;
     return BL_OK;
@@ -951,6 +955,8 @@ bl_insert_after(BlobList* list, BlobListEnt* after, BlobListEnt* ent) {
     } else {
         list->tail = ent;
     }
+
+    after->next = ent;
 
     ent->owner = list;
     list->len++;
