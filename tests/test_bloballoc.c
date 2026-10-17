@@ -267,8 +267,8 @@ split_realloc(void* ctx, void* ptr, size_t old_size, size_t new_size) {
     }
 
     /* Cross bucket: allocate from the new bucket, copy, free to old. */
-    void* new_ptr
-        = (new_size > sc->threshold) ? ba_default_alloc(NULL, new_size) : test_arena_alloc(sc->arena, new_size);
+    void* new_ptr = (new_size > sc->threshold) ? ba_default_alloc(NULL, new_size)
+                                               : test_arena_alloc(sc->arena, new_size);
     if (!new_ptr) {
         return NULL;
     }

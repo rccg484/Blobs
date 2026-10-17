@@ -766,17 +766,15 @@ test_reserve_overflowing_request_returns_range(void) {
 
 static void
 test_realloc_same_cap_does_not_touch_allocator(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena* arena  = test_arena_create(1 << 16);
+    BlobAlloc  ab     = test_arena_block(arena);
 
-    BlobVec* vec    = bv_create(&ab, 4, cmp_bytes, noop_destroy);
-    size_t   before = test_arena_alloc_calls(arena)
-                    + test_arena_free_calls(arena);
+    BlobVec*   vec    = bv_create(&ab, 4, cmp_bytes, noop_destroy);
+    size_t     before = test_arena_alloc_calls(arena) + test_arena_free_calls(arena);
 
     TEST_ASSERT_EQUAL(BV_OK, bv_realloc(vec, 4));
 
-    size_t after = test_arena_alloc_calls(arena)
-                 + test_arena_free_calls(arena);
+    size_t after = test_arena_alloc_calls(arena) + test_arena_free_calls(arena);
     TEST_ASSERT_EQUAL_size_t(before, after);
 
     bv_destroy(vec);
@@ -789,7 +787,7 @@ test_realloc_size_overflow_returns_range(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobVec* vec = bv_create(&ab, 4, cmp_bytes, noop_destroy);
+    BlobVec*   vec   = bv_create(&ab, 4, cmp_bytes, noop_destroy);
 
     TEST_ASSERT_EQUAL(BV_RANGE, bv_realloc(vec, SIZE_MAX));
     TEST_ASSERT_EQUAL_size_t(4, bv_getcap(vec));
@@ -804,7 +802,7 @@ test_realloc_oom_leaves_vec_intact(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobVec* vec = bv_create(&ab, 4, cmp_bytes, noop_destroy);
+    BlobVec*   vec   = bv_create(&ab, 4, cmp_bytes, noop_destroy);
     bv_append(vec, make_ent(&ab, "a"));
 
     /* Next allocation through the block is the realloc's internal one */
@@ -825,7 +823,7 @@ test_appendidx_grows_when_full(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobVec* vec = bv_create(&ab, 2, cmp_bytes, noop_destroy);
+    BlobVec*   vec   = bv_create(&ab, 2, cmp_bytes, noop_destroy);
     bv_append(vec, make_ent(&ab, "b"));
     bv_append(vec, make_ent(&ab, "d"));
     TEST_ASSERT_EQUAL_size_t(2, bv_getlen(vec));
@@ -850,7 +848,7 @@ test_appendidx_grows_when_full_middle_insert(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobVec* vec = bv_create(&ab, 2, cmp_bytes, noop_destroy);
+    BlobVec*   vec   = bv_create(&ab, 2, cmp_bytes, noop_destroy);
     bv_append(vec, make_ent(&ab, "a"));
     bv_append(vec, make_ent(&ab, "c"));
 

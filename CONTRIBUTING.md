@@ -59,6 +59,37 @@ ctest --preset coverage
 
 See the README for the full coverage reporting workflow.
 
+## Code style
+
+Formatting is handled by `clang-format`, configured by the
+`.clang-format` file in the repository root. Run it before committing:
+
+```sh
+clang-format -i BlobAlloc/*.h BlobAlloc/*.c \
+                BlobBox/*.h    BlobBox/*.c \
+                BlobVec/*.h    BlobVec/*.c \
+                BlobList/*.h   BlobList/*.c \
+                tests/*.c      tests/*.h
+```
+
+For editor tooling, the project builds a compile database at
+`build/dev/compile_commands.json` when configured with the `dev` preset.
+Point your editor's language server at that file (or configure the
+`dev` preset once before opening the project in an IDE) so that includes
+resolve and diagnostics match the build.
+
+Beyond formatting:
+
+- C11. No compiler extensions outside of `__builtin_*_overflow`.
+- Compile clean under `-Wall -Wextra -Wpedantic`. The project targets
+  zero warnings.
+- Public functions use the module's short prefix (`ba_`, `bb_`, `bv_`,
+  `bl_`). Types use full names (`BlobAlloc`, `BlobBoxEnt`, `BlobVec`,
+  `BlobListEnt`).
+- Opaque types stay opaque. Implementation details belong inside the
+  `#ifdef XXX_IMPL` block.
+
+
 ### A note on Windows and ASan
 
 On Windows, clang's ASan runtime ships as a DLL next to `clang.exe` and

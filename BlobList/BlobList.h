@@ -932,7 +932,7 @@ bl_insert_before(BlobList* list, BlobListEnt* before, BlobListEnt* ent) {
 
     before->prev = ent;
 
-    ent->owner = list;
+    ent->owner   = list;
     list->len++;
     return BL_OK;
 }
@@ -958,7 +958,7 @@ bl_insert_after(BlobList* list, BlobListEnt* after, BlobListEnt* ent) {
 
     after->next = ent;
 
-    ent->owner = list;
+    ent->owner  = list;
     list->len++;
     return BL_OK;
 }

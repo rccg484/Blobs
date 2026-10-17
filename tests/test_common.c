@@ -169,7 +169,7 @@ test_arena_block(TestArena* arena) {
 void
 test_arena_fail_on_nth_alloc(TestArena* arena, size_t n) {
     if (n == 0) {
-        arena->fail_at_call = SIZE_MAX;   /* disabled */
+        arena->fail_at_call = SIZE_MAX; /* disabled */
         return;
     }
     arena->fail_at_call = arena->call_counter + (n - 1);
@@ -177,9 +177,11 @@ test_arena_fail_on_nth_alloc(TestArena* arena, size_t n) {
 
 void
 test_arena_assert_balanced(const TestArena* arena) {
-    TEST_ASSERT_EQUAL_size_t_MESSAGE(0, arena->live_count, "arena has live allocations at end of test");
+    TEST_ASSERT_EQUAL_size_t_MESSAGE(0, arena->live_count,
+                                     "arena has live allocations at end of test");
     TEST_ASSERT_EQUAL_size_t_MESSAGE(0, arena->size_mismatch_count, "free called with wrong size");
-    TEST_ASSERT_EQUAL_size_t_MESSAGE(0, arena->invalid_free_count, "free called on untracked pointer");
+    TEST_ASSERT_EQUAL_size_t_MESSAGE(0, arena->invalid_free_count,
+                                     "free called on untracked pointer");
     TEST_ASSERT_EQUAL_size_t_MESSAGE(arena->total_alloc_bytes, arena->total_free_bytes,
                                      "total bytes allocated != total bytes freed");
 }

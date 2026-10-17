@@ -1,18 +1,24 @@
-#include "unity.h"
-#include "test_common.h"
 #include "BlobList.h"
+#include "test_common.h"
+#include "unity.h"
 
 #include <string.h>
 
-void setUp(void)    { test_reset_counters(); }
-void tearDown(void) {}
+void
+setUp(void) {
+    test_reset_counters();
+}
+void
+tearDown(void) {}
 
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
 /* ------------------------------------------------------------------ */
 
 static void
-noop_destroy(BlobListEnt* ent) { (void)ent; }
+noop_destroy(BlobListEnt* ent) {
+    (void)ent;
+}
 
 static BlobListEnt*
 make_ent(const BlobAlloc* ab, const char* s) {
@@ -22,7 +28,9 @@ make_ent(const BlobAlloc* ab, const char* s) {
 static int
 ent_equals_str(const BlobListEnt* e, const char* s) {
     size_t len = strlen(s);
-    if (bl_ent_len(e) != len) return 0;
+    if (bl_ent_len(e) != len) {
+        return 0;
+    }
     return memcmp(bl_ent_data(e), s, len) == 0;
 }
 
@@ -35,7 +43,7 @@ test_create_empty(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobList* list = bl_create(&ab, noop_destroy);
+    BlobList*  list  = bl_create(&ab, noop_destroy);
     TEST_ASSERT_NOT_NULL(list);
     TEST_ASSERT_EQUAL_size_t(0, bl_getlen(list));
     TEST_ASSERT_NULL(bl_first(list));
@@ -83,10 +91,10 @@ test_destroy_null_is_noop(void) {
 
 static void
 test_ent_create_roundtrip(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobListEnt* e = bl_ent_create(&ab, "hello", 5);
+    BlobListEnt* e     = bl_ent_create(&ab, "hello", 5);
     TEST_ASSERT_NOT_NULL(e);
     TEST_ASSERT_EQUAL_size_t(5, bl_ent_len(e));
     TEST_ASSERT_EQUAL_MEMORY("hello", bl_ent_data(e), 5);
@@ -127,10 +135,10 @@ test_ent_create_rejects_null_args(void) {
 
 static void
 test_ent_create_uninit_writable(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobListEnt* e = bl_ent_create_uninit(&ab, 8);
+    BlobListEnt* e     = bl_ent_create_uninit(&ab, 8);
     TEST_ASSERT_NOT_NULL(e);
 
     unsigned char* p = bl_ent_data_mut(e);
@@ -163,11 +171,11 @@ test_ent_accessors_on_null(void) {
 
 static void
 test_append_basic_sets_owner(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* e    = make_ent(&ab, "one");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* e     = make_ent(&ab, "one");
 
     TEST_ASSERT_EQUAL(BL_OK, bl_append(list, e));
     TEST_ASSERT_EQUAL_size_t(1, bl_getlen(list));
@@ -182,11 +190,11 @@ test_append_basic_sets_owner(void) {
 
 static void
 test_append_same_entry_twice_is_refused(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* e    = make_ent(&ab, "x");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* e     = make_ent(&ab, "x");
 
     TEST_ASSERT_EQUAL(BL_OK, bl_append(list, e));
     TEST_ASSERT_EQUAL(BL_OWNED, bl_append(list, e));
@@ -199,12 +207,12 @@ test_append_same_entry_twice_is_refused(void) {
 
 static void
 test_append_to_second_list_is_refused(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    l1 = bl_create(&ab, noop_destroy);
-    BlobList*    l2 = bl_create(&ab, noop_destroy);
-    BlobListEnt* e  = make_ent(&ab, "x");
+    BlobList*    l1    = bl_create(&ab, noop_destroy);
+    BlobList*    l2    = bl_create(&ab, noop_destroy);
+    BlobListEnt* e     = make_ent(&ab, "x");
 
     TEST_ASSERT_EQUAL(BL_OK, bl_append(l1, e));
     TEST_ASSERT_EQUAL(BL_OWNED, bl_append(l2, e));
@@ -217,11 +225,11 @@ test_append_to_second_list_is_refused(void) {
 
 static void
 test_ent_destroy_refuses_owned_entry(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* e    = make_ent(&ab, "x");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* e     = make_ent(&ab, "x");
 
     bl_append(list, e);
     TEST_ASSERT_EQUAL(BL_OWNED, bl_ent_destroy(e));
@@ -234,11 +242,11 @@ test_ent_destroy_refuses_owned_entry(void) {
 
 static void
 test_append_null_args(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* e    = make_ent(&ab, "x");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* e     = make_ent(&ab, "x");
 
     TEST_ASSERT_EQUAL(BL_NPARAM, bl_append(NULL, e));
     TEST_ASSERT_EQUAL(BL_NPARAM, bl_append(list, NULL));
@@ -255,11 +263,11 @@ test_append_null_args(void) {
 
 static void
 test_append_into_empty(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* e    = make_ent(&ab, "a");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* e     = make_ent(&ab, "a");
 
     bl_append(list, e);
     TEST_ASSERT_EQUAL_PTR(e, bl_first(list));
@@ -274,12 +282,12 @@ test_append_into_empty(void) {
 
 static void
 test_append_to_nonempty(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
 
     bl_append(list, a);
     bl_append(list, b);
@@ -302,11 +310,11 @@ test_append_to_nonempty(void) {
 
 static void
 test_prepend_into_empty(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* e    = make_ent(&ab, "a");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* e     = make_ent(&ab, "a");
 
     bl_prepend(list, e);
     TEST_ASSERT_EQUAL_PTR(e, bl_first(list));
@@ -321,12 +329,12 @@ test_prepend_into_empty(void) {
 
 static void
 test_prepend_to_nonempty(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
 
     bl_append(list, a);
     bl_prepend(list, b);
@@ -349,14 +357,14 @@ test_prepend_to_nonempty(void) {
 
 static void
 test_insert_before_head(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
-    BlobListEnt* c    = make_ent(&ab, "c");
-    BlobListEnt* x    = make_ent(&ab, "x");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
+    BlobListEnt* c     = make_ent(&ab, "c");
+    BlobListEnt* x     = make_ent(&ab, "x");
 
     bl_append(list, a);
     bl_append(list, b);
@@ -376,14 +384,14 @@ test_insert_before_head(void) {
 
 static void
 test_insert_before_middle(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
-    BlobListEnt* c    = make_ent(&ab, "c");
-    BlobListEnt* x    = make_ent(&ab, "x");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
+    BlobListEnt* c     = make_ent(&ab, "c");
+    BlobListEnt* x     = make_ent(&ab, "x");
 
     bl_append(list, a);
     bl_append(list, b);
@@ -403,13 +411,13 @@ test_insert_before_middle(void) {
 
 static void
 test_insert_before_tail(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
-    BlobListEnt* x    = make_ent(&ab, "x");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
+    BlobListEnt* x     = make_ent(&ab, "x");
 
     bl_append(list, a);
     bl_append(list, b);
@@ -427,14 +435,14 @@ test_insert_before_tail(void) {
 
 static void
 test_insert_before_wrong_list(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    l1 = bl_create(&ab, noop_destroy);
-    BlobList*    l2 = bl_create(&ab, noop_destroy);
-    BlobListEnt* e1 = make_ent(&ab, "e1");
-    BlobListEnt* e2 = make_ent(&ab, "e2");
-    BlobListEnt* x  = make_ent(&ab, "x");
+    BlobList*    l1    = bl_create(&ab, noop_destroy);
+    BlobList*    l2    = bl_create(&ab, noop_destroy);
+    BlobListEnt* e1    = make_ent(&ab, "e1");
+    BlobListEnt* e2    = make_ent(&ab, "e2");
+    BlobListEnt* x     = make_ent(&ab, "x");
 
     bl_append(l1, e1);
     bl_append(l2, e2);
@@ -450,12 +458,12 @@ test_insert_before_wrong_list(void) {
 
 static void
 test_insert_before_owned_ent_refused(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
 
     bl_append(list, a);
     bl_append(list, b);
@@ -474,13 +482,13 @@ test_insert_before_owned_ent_refused(void) {
 
 static void
 test_insert_after_head(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
-    BlobListEnt* x    = make_ent(&ab, "x");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
+    BlobListEnt* x     = make_ent(&ab, "x");
 
     bl_append(list, a);
     bl_append(list, b);
@@ -499,13 +507,13 @@ test_insert_after_head(void) {
 
 static void
 test_insert_after_tail(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
-    BlobListEnt* x    = make_ent(&ab, "x");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
+    BlobListEnt* x     = make_ent(&ab, "x");
 
     bl_append(list, a);
     bl_append(list, b);
@@ -522,14 +530,14 @@ test_insert_after_tail(void) {
 
 static void
 test_insert_after_middle(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
-    BlobListEnt* c    = make_ent(&ab, "c");
-    BlobListEnt* x    = make_ent(&ab, "x");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
+    BlobListEnt* c     = make_ent(&ab, "c");
+    BlobListEnt* x     = make_ent(&ab, "x");
 
     bl_append(list, a);
     bl_append(list, b);
@@ -552,11 +560,11 @@ test_insert_after_middle(void) {
 
 static void
 test_remove_head_single(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
     bl_append(list, a);
 
     BlobListEnt* out = bl_remove_head(list);
@@ -576,12 +584,12 @@ test_remove_head_single(void) {
 
 static void
 test_remove_head_multi(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
     bl_append(list, a);
     bl_append(list, b);
 
@@ -603,7 +611,7 @@ test_remove_head_empty_returns_null(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobList* list = bl_create(&ab, noop_destroy);
+    BlobList*  list  = bl_create(&ab, noop_destroy);
     TEST_ASSERT_NULL(bl_remove_head(list));
     TEST_ASSERT_NULL(bl_remove_head(NULL));
 
@@ -614,11 +622,11 @@ test_remove_head_empty_returns_null(void) {
 
 static void
 test_remove_tail_single(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
     bl_append(list, a);
 
     BlobListEnt* out = bl_remove_tail(list);
@@ -636,12 +644,12 @@ test_remove_tail_single(void) {
 
 static void
 test_remove_tail_multi(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
     bl_append(list, a);
     bl_append(list, b);
 
@@ -662,7 +670,7 @@ test_remove_tail_empty_returns_null(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobList* list = bl_create(&ab, noop_destroy);
+    BlobList*  list  = bl_create(&ab, noop_destroy);
     TEST_ASSERT_NULL(bl_remove_tail(list));
     TEST_ASSERT_NULL(bl_remove_tail(NULL));
 
@@ -675,12 +683,12 @@ static void
 test_remove_head_equals_remove_head_direct(void) {
     /* bl_remove(list, list->head) should give the same result as
      * bl_remove_head(list). */
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
     bl_append(list, a);
     bl_append(list, b);
 
@@ -699,13 +707,13 @@ test_remove_head_equals_remove_head_direct(void) {
 
 static void
 test_remove_middle(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    list = bl_create(&ab, noop_destroy);
-    BlobListEnt* a    = make_ent(&ab, "a");
-    BlobListEnt* b    = make_ent(&ab, "b");
-    BlobListEnt* c    = make_ent(&ab, "c");
+    BlobList*    list  = bl_create(&ab, noop_destroy);
+    BlobListEnt* a     = make_ent(&ab, "a");
+    BlobListEnt* b     = make_ent(&ab, "b");
+    BlobListEnt* c     = make_ent(&ab, "c");
     bl_append(list, a);
     bl_append(list, b);
     bl_append(list, c);
@@ -727,12 +735,12 @@ test_remove_middle(void) {
 
 static void
 test_remove_wrong_list_returns_null(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    l1 = bl_create(&ab, noop_destroy);
-    BlobList*    l2 = bl_create(&ab, noop_destroy);
-    BlobListEnt* e  = make_ent(&ab, "e");
+    BlobList*    l1    = bl_create(&ab, noop_destroy);
+    BlobList*    l2    = bl_create(&ab, noop_destroy);
+    BlobListEnt* e     = make_ent(&ab, "e");
     bl_append(l1, e);
 
     TEST_ASSERT_NULL(bl_remove(l2, e));
@@ -746,12 +754,12 @@ test_remove_wrong_list_returns_null(void) {
 
 static void
 test_remove_can_be_reappended_elsewhere(void) {
-    TestArena* arena = test_arena_create(1 << 16);
-    BlobAlloc  ab    = test_arena_block(arena);
+    TestArena*   arena = test_arena_create(1 << 16);
+    BlobAlloc    ab    = test_arena_block(arena);
 
-    BlobList*    l1 = bl_create(&ab, noop_destroy);
-    BlobList*    l2 = bl_create(&ab, noop_destroy);
-    BlobListEnt* e  = make_ent(&ab, "moving");
+    BlobList*    l1    = bl_create(&ab, noop_destroy);
+    BlobList*    l2    = bl_create(&ab, noop_destroy);
+    BlobListEnt* e     = make_ent(&ab, "moving");
 
     bl_append(l1, e);
     BlobListEnt* moved = bl_remove(l1, e);
@@ -778,7 +786,7 @@ test_iteration_forward(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobList* list = bl_create(&ab, noop_destroy);
+    BlobList*  list  = bl_create(&ab, noop_destroy);
     bl_append(list, make_ent(&ab, "a"));
     bl_append(list, make_ent(&ab, "b"));
     bl_append(list, make_ent(&ab, "c"));
@@ -801,7 +809,7 @@ test_iteration_backward(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobList* list = bl_create(&ab, noop_destroy);
+    BlobList*  list  = bl_create(&ab, noop_destroy);
     bl_append(list, make_ent(&ab, "a"));
     bl_append(list, make_ent(&ab, "b"));
     bl_append(list, make_ent(&ab, "c"));
@@ -825,7 +833,7 @@ test_iteration_with_removal(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobList* list = bl_create(&ab, noop_destroy);
+    BlobList*  list  = bl_create(&ab, noop_destroy);
     for (int i = 0; i < 6; i++) {
         char buf[8];
         int  n = snprintf(buf, sizeof buf, "%d", i);
@@ -833,7 +841,7 @@ test_iteration_with_removal(void) {
     }
 
     /* Remove all even-numbered entries */
-    for (BlobListEnt* e = bl_first(list); e; ) {
+    for (BlobListEnt* e = bl_first(list); e;) {
         BlobListEnt* next = bl_next(e);
         if ((bl_ent_data(e)[0] - '0') % 2 == 0) {
             BlobListEnt* removed = bl_remove(list, e);
@@ -862,7 +870,7 @@ test_getidx_hits_and_misses(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobList* list = bl_create(&ab, noop_destroy);
+    BlobList*  list  = bl_create(&ab, noop_destroy);
     bl_append(list, make_ent(&ab, "a"));
     bl_append(list, make_ent(&ab, "b"));
     bl_append(list, make_ent(&ab, "c"));
@@ -889,7 +897,7 @@ test_destroy_calls_destructor_per_entry(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobList* list = bl_create(&ab, test_counting_destroy_list);
+    BlobList*  list  = bl_create(&ab, test_counting_destroy_list);
     bl_append(list, make_ent(&ab, "a"));
     bl_append(list, make_ent(&ab, "b"));
     bl_append(list, make_ent(&ab, "c"));
@@ -906,7 +914,7 @@ test_clear_calls_destructor_and_keeps_list(void) {
     TestArena* arena = test_arena_create(1 << 16);
     BlobAlloc  ab    = test_arena_block(arena);
 
-    BlobList* list = bl_create(&ab, test_counting_destroy_list);
+    BlobList*  list  = bl_create(&ab, test_counting_destroy_list);
     for (int i = 0; i < 5; i++) {
         bl_append(list, make_ent(&ab, "x"));
     }

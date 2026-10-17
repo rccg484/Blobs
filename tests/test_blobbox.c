@@ -2,7 +2,6 @@
 #include "test_common.h"
 #include "unity.h"
 
-
 #include <string.h>
 
 void
@@ -25,7 +24,7 @@ ent_equals_str(const BlobBoxEnt* e, const char* s) {
     if (bb_ent_len(e) != len) {
         return 0;
     }
-    
+
     return memcmp(bb_ent_data(e), s, len) == 0;
 }
 

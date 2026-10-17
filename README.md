@@ -24,8 +24,8 @@ the containers all sit on top of BlobAlloc.
 ## Overview
 
 C container code commonly assumes that the element type is known at
-compile time and that `malloc` and `free` are the allocators. Blobs
-relaxes both assumptions.
+compile time and that `malloc` and `free` are the allocators. The Blobs 
+libraries relax both assumptions.
 
 Entries are opaque, length-prefixed, `max_align_t`-aligned byte buffers,
 and every allocation goes through a function-pointer block supplied by

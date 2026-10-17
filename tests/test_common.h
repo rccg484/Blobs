@@ -3,8 +3,8 @@
 
 #include "BlobAlloc.h"
 #include "BlobBox.h"
-#include "BlobVec.h"
 #include "BlobList.h"
+#include "BlobVec.h"
 
 typedef struct TestArena_s TestArena;
 
@@ -58,6 +58,7 @@ test_counting_destroy(BlobVecEnt* ent);
 void
 test_reset_counters(void);
 
-void test_counting_destroy_list(BlobListEnt* ent);
+void
+test_counting_destroy_list(BlobListEnt* ent);
 
 #endif /* TEST_COMMON_H */

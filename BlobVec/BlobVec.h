@@ -586,9 +586,9 @@ bv_binarysearch(const BlobVec* vec, const void* data, size_t len);
 #define BLOBVEC_IMPL_DONE
 
 #include <stdalign.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 
 struct BlobVecEnt_s {
     const BlobAlloc* ab;
