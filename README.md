@@ -2,26 +2,28 @@
 
 Allocator-aware, single-header blob containers for C11.
 
-Three small libraries providing dynamic containers for arbitrary byte
+Four small libraries providing dynamic containers for arbitrary byte
 blobs, with pluggable allocators. No build step, no dependencies, no
 globals. Add the headers to your project, define one macro, and use
 them.
 
 - **BlobAlloc** — the allocator substrate: hooks, context, and a default
   malloc-backed block.
-- **BlobBox** — a non-owning container. Entries carry their own allocator
-  and may be referenced by any number of boxes.
-- **BlobVec** — an owning container. Entries belong to one vector at a
-  time, and destroying the vector destroys them.
+- **BlobBox** — a non-owning dynamic array. Entries carry their own
+  allocator and may be referenced by any number of boxes.
+- **BlobVec** — an owning dynamic array. Entries belong to one vector at
+  a time, and destroying the vector destroys them.
+- **BlobList** — an owning doubly-linked list. Entries belong to one
+  list at a time, and destroying the list destroys them.
 
 Each is a single header. Each is usable on its own, though in practice
-BlobBox and BlobVec both sit on top of BlobAlloc.
+the containers all sit on top of BlobAlloc.
 
 ---
 
 ## Overview
 
-C dynamic-array code commonly assumes that the element type is known at
+C container code commonly assumes that the element type is known at
 compile time and that `malloc` and `free` are the allocators. Blobs
 relaxes both assumptions.
 
@@ -41,7 +43,7 @@ global state.
 #include <string.h>
 #include "BlobVec.h"
 
-#define BV_IMPL
+#define BLOBVEC_IMPL
 #include "BlobVec.h"
 
 static void noop_destroy(BlobVecEnt* e) { (void)e; }
@@ -76,9 +78,9 @@ int main(void) {
 }
 ```
 
-The `#define BV_IMPL` line goes in exactly one translation unit in your
-program. Every other file that includes `BlobVec.h` receives only the
-declarations.
+The `#define BLOBVEC_IMPL` line goes in exactly one translation unit in
+your program. Every other file that includes `BlobVec.h` receives only
+the declarations.
 
 ---
 
@@ -134,18 +136,19 @@ library.
 
 ---
 
-## Ownership: Box vs Vec
+## Ownership
 
-The two containers differ in their ownership contract.
+The containers differ in their ownership contract.
 
-| | `BlobBox` | `BlobVec` |
-|---|---|---|
-| Owns its entries | no | yes |
-| Same entry in multiple containers | yes | no |
-| `destroy` frees entries | no | yes |
-| Entry has an owner pointer | no | yes |
-| Append refuses a shared entry | no | yes (`BV_OWNED`) |
-| Container stores comparator / destructor | no | yes |
+| | `BlobBox` | `BlobVec` | `BlobList` |
+|---|---|---|---|
+| Owns its entries | no | yes | yes |
+| Same entry in multiple containers | yes | no | no |
+| `destroy` frees entries | no | yes | yes |
+| Entry has an owner pointer | no | yes | yes |
+| Operation refuses a shared entry | no | yes (`BV_OWNED`) | yes (`BL_OWNED`) |
+| Container stores comparator / destructor | no | yes | yes |
+| Indexed access | yes | yes | O(n) |
 
 **BlobBox** is suitable when entries have their own lifetimes and the
 container holds references to them: a registry, an index, a work queue,
@@ -156,8 +159,14 @@ should be freed with it, as in a dynamic array that owns its contents.
 `bv_destroy` frees every entry, runs the destructor on each, then frees
 the vector.
 
-Both containers can be backed by the same allocator, or by different
-ones. Entries and containers do not have to share an `BlobAlloc`.
+**BlobList** is suitable when entries need O(1) insert or remove at a
+known position, and stable pointers across operations. `bl_destroy`
+frees every entry, runs the destructor on each, then frees the list.
+A list is not the right container for indexed access patterns; use
+BlobVec if you find yourself calling `bl_getidx` in a loop.
+
+All containers can be backed by the same allocator, or by different
+ones. Entries and containers do not have to share a `BlobAlloc`.
 
 ---
 
@@ -180,11 +189,11 @@ target_link_libraries(myapp PRIVATE BlobVec::BlobVec)
 
 `BlobVec::BlobVec` transitively pulls in `BlobAlloc::BlobAlloc`, so one
 link line is sufficient. Use `BlobBox::BlobBox` for the non-owning
-container, or both if you need both.
+container, `BlobList::BlobList` for the linked list, or any combination.
 
 ### Vendored
 
-Add the three module directories to your source tree and:
+Add the module directories to your source tree and:
 
 ```cmake
 add_subdirectory(third_party/blobs)
@@ -193,16 +202,18 @@ target_link_libraries(myapp PRIVATE BlobVec::BlobVec)
 
 ### Manual
 
-Copy the header. Define the impl macro in one `.c` file:
+Copy the headers. Define the impl macros in one `.c` file:
 
 ```c
 /* blob_impl.c */
 #define BLOBALLOC_IMPL
 #define BLOBBOX_IMPL
-#define BV_IMPL
+#define BLOBVEC_IMPL
+#define BLOBLIST_IMPL
 #include "BlobAlloc.h"
 #include "BlobBox.h"
 #include "BlobVec.h"
+#include "BlobList.h"
 ```
 
 Then include the headers from anywhere else. No CMake required.
@@ -242,6 +253,7 @@ llvm-cov report \
     -object=tests/test_bloballoc.exe \
     -object=tests/test_blobbox.exe \
     -object=tests/test_blobvec.exe \
+    -object=tests/test_bloblist.exe \
     -object=tests/test_integration.exe \
     -instr-profile=merged.profdata \
     -ignore-filename-regex='(_deps|test_)'
@@ -253,15 +265,16 @@ Add `-format=html -output-dir=html` for a browsable report.
 
 ## Design notes
 
-**Entries are opaque.** You hold, pass, and compare `BlobBoxEnt*` and
-`BlobVecEnt*` handles, but cannot read or write the fields. Access is
-via `*_ent_data`, `*_ent_len`, and the mut variants. The struct layout
-is an implementation detail and may change.
+**Entries are opaque.** You hold, pass, and compare `BlobBoxEnt*`,
+`BlobVecEnt*`, and `BlobListEnt*` handles, but cannot read or write the
+fields. Access is via `*_ent_data`, `*_ent_len`, and the mut variants.
+The struct layout is an implementation detail and may change.
 
-**`BlobBoxEnt` and `BlobVecEnt` are not interchangeable.** They have
-different layouts, and casting one to the other is undefined behaviour.
-If you need data in both kinds of container, copy it with the
-destination's `*_ent_create`; do not transfer pointers.
+**Entries are container-specific.** A `BlobBoxEnt` is not a
+`BlobVecEnt` is not a `BlobListEnt`. They have different layouts, and
+casting between them is undefined behaviour. If you need the same data
+in two containers, copy it with the destination container's
+`*_ent_create`; do not transfer pointers.
 
 **Zero-length entries are prohibited.** Since entries cannot be resized,
 a zero-length entry would be permanently unusable. Both `*_ent_create`
@@ -285,6 +298,18 @@ as a general facility. Keep blocks flat.
 in their own realloc functions. If you write a custom block, document
 whether your realloc shares this behaviour.
 
+**Iteration over a list, with removal.** A `BlobListEnt*` handle is
+only valid while the entry is in its list. To remove entries while
+iterating, capture `next` before removing:
+
+```c
+for (BlobListEnt* e = bl_first(list); e; ) {
+    BlobListEnt* next = bl_next(e);
+    if (should_remove(e)) bl_remove(list, e);
+    e = next;
+}
+```
+
 ---
 
 ## Platform notes
@@ -307,9 +332,10 @@ which compiler CMake picked up.
 
 Version 0.1. The API is stable enough to use, but has not been
 extensively tested and may change before 1.0. Function coverage is
-100%, line and region coverage are approximately 90%, and branch
-coverage is approximately 81%. The residual uncovered branches are
-defensive NULL guards and unreachable overflow checks.
+100%, line coverage is approximately 91%, region coverage is
+approximately 90%, and branch coverage is approximately 81%. The
+residual uncovered branches are defensive NULL guards and unreachable
+overflow checks.
 
 Tested on:
 

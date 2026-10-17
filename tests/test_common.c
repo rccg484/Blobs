@@ -253,3 +253,9 @@ void
 test_reset_counters(void) {
     g_test_destroy_count = 0;
 }
+
+void
+test_counting_destroy_list(BlobListEnt* ent) {
+    (void)ent;
+    g_test_destroy_count++;
+}
