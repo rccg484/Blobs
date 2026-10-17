@@ -581,9 +581,9 @@ bv_binarysearch(const BlobVec* vec, const void* data, size_t len);
 
 #endif /* BLOBVEC_H */
 
-#ifdef BV_IMPL
-#ifndef BV_IMPL_DONE
-#define BV_IMPL_DONE
+#ifdef BLOBVEC_IMPL
+#ifndef BLOBVEC_IMPL_DONE
+#define BLOBVEC_IMPL_DONE
 
 #include <stdalign.h>
 #include <stdlib.h>
@@ -1015,5 +1015,5 @@ bv_binarysearch(const BlobVec* vec, const void* data, size_t len) {
     return NULL;
 }
 
-#endif /* BV_IMPL_DONE */
-#endif /* BV_IMPL */
+#endif /* BLOBVEC_IMPL_DONE */
+#endif /* BLOBVEC_IMPL */
